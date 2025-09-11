@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shashvat Child & Family Dental Care</title>
+    <!-- Use the Inter and Bubblegum Sans fonts from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Load Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+        .container {
+            max-width: 1280px;
+        }
+        /* Custom styles for the mobile menu */
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
+        .message-box {
+            display: none;
+        }
+        .message-box.visible {
+            display: flex;
+        }
+        /* Style for the loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #14b8a6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Custom styles for the reviews carousel */
+        .reviews-carousel-container {
+            position: relative;
+        }
+        .reviews-carousel {
+            display: grid;
+            grid-auto-flow: column;
+            gap: 1.5rem; /* Equivalent to gap-6 */
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* For Firefox */
+        }
+        .reviews-carousel::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+        }
+        .review-card {
+            min-width: 300px;
+            flex-shrink: 0;
+        }
+        .reviews-carousel-nav button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        .reviews-carousel-nav .prev-button {
+            left: 0;
+        }
+        .reviews-carousel-nav .next-button {
+            right: 0;
+        }
+        /* CSS for the fade-in animation on scroll */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            will-change: opacity, transform;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Grainy background effect for the hero section */
+        .grainy-background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;charset=utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="%23FFFFFF" fill-opacity="0.1" d="M1 0h1v1H1zM0 1h1v1H0zM2 1h1v1H2zM1 2h1v1H1zM3 2h1v1H3zM2 3h1v1H2z"/></svg>');
+            background-repeat: repeat;
+            opacity: 0.8;
+            z-index: 0;
+        }
+        
+        /* Floating AI Assistant Button - Highlighted Style with Grey Theme */
+        #ai-assistant-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: #2d3748; /* Dark charcoal grey background */
+            color: white;
+            padding: 1rem;
+            border: 4px solid rgb(156, 163, 175); /* Light grey RGB border */
+            border-radius: 9999px; /* A large value for a perfect circle */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.2s ease-in-out;
+            animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        
+        #ai-assistant-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Pulse animation for the button */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.2);
+            }
+        }
+        
+        /* AI Assistant Modal */
+        #ai-assistant-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 101;
+        }
+        
+        #ai-assistant-modal {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        #close-modal-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .chat-box {
+            overflow-y: auto;
+            flex-grow: 1;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+        }
+        
+        .user-message, .bot-message {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+        }
+        
+        .user-message {
+            background-color: #14b8a6;
+            color: white;
+            align-self: flex-end;
+            text-align: right;
+        }
+        
+        .bot-message {
+            background-color: #f0f4f8;
+            color: #2d3748;
+            align-self: flex-start;
+            text-align: left;
+        }
+    </style>
+    <!-- For icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="cursor-pointer">
+                <img src="shashvat-logo.jpg" alt="Shashvat Dental Care Logo" class="h-12 w-auto">
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex space-x-6">
+                <a href="#home" class="text-gray-600 hover:text-teal-600 transition duration-300">Home</a>
+                <a href="#services" class="text-gray-600 hover:text-teal-600 transition duration-300">Services</a>
+                <a href="#team" class="text-gray-600 hover:text-teal-600 transition duration-300">Our Team</a>
+                <a href="#reviews" class="text-gray-600 hover:text-teal-600 transition duration-300">Reviews</a>
+                <a href="#contact" class="text-gray-600 hover:text-teal-600 transition duration-300">Contact Us</a>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-inset focus:ring-teal-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-3/4 bg-white shadow-xl z-50 p-6 md:hidden flex flex-col items-start space-y-4">
+        <button id="close-menu-button" class="self-end p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-inset focus:ring-teal-500">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <a href="#home" class="block text-xl text-gray-800 hover:text-teal-600" onclick="document.getElementById('mobile-menu').classList.remove('open')">Home</a>
+            <a href="#services" class="block text-xl text-gray-800 hover:text-teal-600" onclick="document.getElementById('mobile-menu').classList.remove('open')">Services</a>
+            <a href="#team" class="block text-xl text-gray-800 hover:text-teal-600" onclick="document.getElementById('mobile-menu').classList.remove('open')">Our Team</a>
+            <a href="#reviews" class="block text-xl text-gray-800 hover:text-teal-600" onclick="document.getElementById('mobile-menu').classList.remove('open')">Reviews</a>
+            <a href="#contact" class="block text-xl text-gray-800 hover:text-teal-600" onclick="document.getElementById('mobile-menu').classList.remove('open')">Contact Us</a>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="relative bg-gradient-to-r from-teal-500 to-teal-700 text-white py-20 md:py-32 grainy-background">
+            <div class="container mx-auto px-4 text-center relative z-10">
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-4">Shashvat Child & Family Dental Care</h1>
+                <p class="text-xl md:text-2xl font-light mb-8">One Family, One Roof - Dental Care for Every Age.</p>
+                
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="py-16 md:py-24 bg-white fade-in-section">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-12">Our Services</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Service 1: Pediatric Dentistry -->
+                    <div class="flex flex-col items-center text-center p-6 bg-gray-100 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300">
+                        <i class="fas fa-child text-4xl text-teal-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Pediatric Dentistry</h3>
+                        <p class="text-gray-600">Gentle and effective dental care for infants, children, and teens in a fun and friendly environment.</p>
+                    </div>
+                    <!-- Service 2: General Dentistry -->
+                    <div class="flex flex-col items-center text-center p-6 bg-gray-100 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300">
+                        <i class="fas fa-users text-4xl text-teal-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">General Dentistry</h3>
+                        <p class="text-gray-600">Comprehensive dental services for the entire family, from routine check-ups to fillings and cleanings.</p>
+                    </div>
+                    <!-- Service 3: Implants and Crown -->
+                    <div class="flex flex-col items-center text-center p-6 bg-gray-100 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300">
+                        <i class="fas fa-crown text-4xl text-teal-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Implants and Crown</h3>
+                        <p class="text-gray-600">Restore your smile with our advanced dental implant and crown procedures for missing or damaged teeth.</p>
+                    </div>
+                    <!-- Service 4: Orthodontic Care -->
+                    <div class="flex flex-col items-center text-center p-6 bg-gray-100 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300">
+                        <i class="fas fa-smile-beam text-4xl text-teal-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Orthodontic Care</h3>
+                        <p class="text-gray-600">Correct misaligned teeth and jaw issues with our professional orthodontic treatments to give you a straighter, healthier smile.</p>
+                    </div>
+                    <!-- Service 5: Cosmetic Dentistry -->
+                    <div class="flex flex-col items-center text-center p-6 bg-gray-100 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300">
+                        <i class="fas fa-star text-4xl text-teal-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Cosmetic Dentistry</h3>
+                        <p class="text-gray-600">Achieve your dream smile with our cosmetic procedures, including teeth whitening, veneers, and smile makeovers.</p>
+                    </div>
+                    <!-- Service 6: Wisdom Teeth Removal -->
+                    <div class="flex flex-col items-center text-center p-6 bg-gray-100 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300">
+                        <i class="fas fa-bone text-4xl text-teal-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Wisdom Teeth Removal</h3>
+                        <p class="text-gray-600">Safe and comfortable removal of impacted or problematic wisdom teeth to prevent future oral health issues.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Our Team Section -->
+        <section id="team" class="py-16 md:py-24 bg-white fade-in-section">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Meet Our Team</h2>
+                <div class="flex justify-center items-center">
+                    <div class="bg-gray-100 rounded-2xl p-8 shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-4xl">
+                        <img src="shashvat-team.jpg" alt="Dr. Lipsa Shah Doshi and Dr. Darshan Doshi" class="rounded-2xl mx-auto mb-6 w-full max-w-2xl h-auto object-cover">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-center md:text-left">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-800">Dr. Lipsa Shah Doshi</h3>
+                                <p class="text-teal-600 mb-4">Pediatric Dentist & Interceptive Orthodontist</p>
+                                <p class="text-gray-600 text-sm">With a gentle touch and a passion for children's oral health, Dr. Lipsa specializes in providing compassionate dental care for our youngest patients. She is an expert in early dental development and uses interceptive orthodontics to guide healthy, beautiful smiles from an early age.</p>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-800">Dr. Darshan Doshi</h3>
+                                <p class="text-teal-600 mb-4">General Dentist, Implantologist, FMR Expert</p>
+                                <p class="text-gray-600 text-sm">Dr. Darshan is dedicated to comprehensive family dental care. As a skilled implantologist, he provides advanced solutions for tooth replacement, and his expertise in FMR (Full Mouth Rehabilitation) ensures a holistic approach to restoring both function and aesthetics for adults of all ages.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Patient Reviews Section -->
+        <section id="reviews" class="py-16 md:py-24 bg-gray-50 fade-in-section">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-12">What Our Patients Say</h2>
+                <div class="reviews-carousel-container relative">
+                    <div id="reviews-carousel" class="reviews-carousel">
+                        <!-- Review 1 - Vesu -->
+                        <div class="review-card bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
+                            <div>
+                                <p class="text-gray-600 italic mb-4">"The Vesu clinic is excellent. The doctors and staff are very professional, and the clinic has a homely environment. They are very good with kids and the overall service is top-notch. Highly recommended."</p>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold text-gray-800">- Harish D.</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Review 2 - Palanpur Canal Rd -->
+                        <div class="review-card bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
+                            <div>
+                                <p class="text-gray-600 italic mb-4">"I came here for my root canal and received the best care from Dr. Darshan Doshi. The treatment was painless and the service protocol, especially the sterilization, was excellent."</p>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold text-gray-800">- Bipin S.</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Review 3 - Palanpur Canal Rd -->
+                        <div class="review-card bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
+                            <div>
+                                <p class="text-gray-600 italic mb-4">"The Palanpur clinic provides the best treatment. The doctors and assistants are friendly and the treatment is painless. It's the best place for dental care."</p>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold text-gray-800">- Yash B.</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Review 4 - New -->
+                        <div class="review-card bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
+                            <div>
+                                <p class="text-gray-600 italic mb-4">"I was so nervous about my child's first dental visit, but Dr. Lipsa was amazing! She made the experience fun and put my child completely at ease. I am so grateful for her gentle approach."</p>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold text-gray-800">- Priya K.</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Review 5 - New -->
+                        <div class="review-card bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
+                            <div>
+                                <p class="text-gray-600 italic mb-4">"The team here is simply the best. They are professional, caring, and the clinic is spotless. My family and I have been patients for years and have never been disappointed."</p>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold text-gray-800">- Rohan S.</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Review 6 - New -->
+                        <div class="review-card bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
+                            <div>
+                                <p class="text-gray-600 italic mb-4">"I had a full mouth rehabilitation done by Dr. Darshan. He is incredibly skilled and the results are life-changing. I can't stop smiling. Thank you so much!"</p>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold text-gray-800">- Fatima H.</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reviews-carousel-nav absolute inset-y-0 w-full flex justify-between items-center px-4 md:px-8">
+                        <button id="prev-review" class="prev-button bg-white text-gray-800 p-2 rounded-full shadow-lg opacity-75 hover:opacity-100 transition-opacity duration-300">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button id="next-review" class="next-button bg-white text-gray-800 p-2 rounded-full shadow-lg opacity-75 hover:opacity-100 transition-opacity duration-300">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Contact Us & Locations Section -->
+        <section id="contact" class="py-16 md:py-24 bg-gray-50 fade-in-section">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">Contact Us & Locations</h2>
+                <p class="text-gray-600 mb-8 text-center">
+                    Click the WhatsApp button for your preferred branch to book an appointment, or use the "Call Now" option to speak with us directly.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Vesu Branch -->
+                    <div class="bg-white rounded-2xl p-6 shadow-md flex flex-col h-full">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Shashvat Child & Family Dental Care (Vesu)</h3>
+                        <p class="text-gray-600 mb-2">201, Signet Shoppers beside Shubh Residency , Vesu SURAT-395007</p>
+                        <p class="text-gray-600 mb-4">Email: shashvat.dental2@gmail.com</p>
+                        <div class="aspect-w-16 aspect-h-9 w-full mb-4">
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3719.443025053507!2d72.77070977575777!3d21.214273830155577!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be04d44d147e3a9%3A0x132ee5cb61904232!2sShashvat%20Child%20%26%20Family%20Dental%20Care!5e0!3m2!1sen!2sus!4v1757580041696!5m2!1sen!2sus" 
+                                width="100%" 
+                                height="450" 
+                                style="border:0;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade"
+                                class="rounded-xl"
+                            ></iframe>
+                        </div>
+                        <div class="space-y-2 mt-auto">
+                            <a href="https://wa.me/917016326904" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-teal-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-teal-600 transition duration-300">
+                                <i class="fab fa-whatsapp mr-2"></i> Message Vesu Branch
+                            </a>
+                            <a href="tel:+917016326904" class="block w-full text-center bg-teal-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-teal-600 transition duration-300">
+                                <i class="fas fa-phone mr-2"></i> Call Now
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Palanpur Canal Rd Branch -->
+                    <div class="bg-white rounded-2xl p-6 shadow-md flex flex-col h-full">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Shashvat Child And Family Dental Care (Palanpur Canal Rd)</h3>
+                        <p class="text-gray-600 mb-2">245, Rajhans platinum plaza, nr. new L.P.Savani high school, palanpur canal rd, SURAT-395009</p>
+                        <p class="text-gray-600 mb-4">Email: shashvat.dental@gmail.com</p>
+                        <div class="aspect-w-16 aspect-h-9 w-full mb-4">
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3721.288373768829!2d72.7690192!3d21.140919099999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be053e420698f6d%3A0x88b79562d1268f52!2sShashvat%20Child%20And%20Family%20Dental%20Care!5e0!3m2!1sen!2sin!4v1757584226804!5m2!1sen!2sin" 
+                                width="100%" 
+                                height="450" 
+                                style="border:0;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade"
+                                class="rounded-xl"
+                            ></iframe>
+                        </div>
+                        <div class="space-y-2 mt-auto">
+                            <a href="https://wa.me/918160332843" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-teal-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-teal-600 transition duration-300">
+                                <i class="fab fa-whatsapp mr-2"></i> Message Palanpur Canal Rd Branch
+                            </a>
+                            <a href="tel:+918160332843" class="block w-full text-center bg-teal-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-teal-600 transition duration-300">
+                                <i class="fas fa-phone mr-2"></i> Call Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-md mt-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Hours of Operation</h3>
+                    <ul class="text-gray-600 space-y-2">
+                        <li>Monday - Saturday: 10:00 AM - 1:00 PM & 4:00 PM - 8:00 PM</li>
+                        <li>Sunday: By appointment only</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating AI Assistant Button -->
+    <div id="ai-assistant-button">
+        <i class="fas fa-tooth text-3xl"></i>
+    </div>
+    
+    <!-- AI Assistant Modal -->
+    <div id="ai-assistant-modal-overlay" class="hidden">
+        <div id="ai-assistant-modal">
+            <button id="close-modal-button">&times;</button>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Your Personal Dental Assistant</h2>
+            <p class="text-gray-600 mb-4 text-center">Ask our AI assistant any general questions about dental health and get helpful tips!</p>
+            <div id="chat-box" class="chat-box flex-grow">
+                <p class="text-gray-700 italic text-center">Your AI-generated tips will appear here.</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <textarea id="dental-query" rows="1" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none overflow-hidden" placeholder="e.g., 'What are some tips for brushing my teeth properly?'"></textarea>
+                <button id="ask-button" class="flex-shrink-0 bg-teal-500 text-white font-semibold p-3 rounded-lg shadow-md hover:bg-teal-600 transition duration-300 relative overflow-hidden">
+                    <span id="button-text"><i class="fas fa-paper-plane"></i></span>
+                    <div id="loader" class="loader absolute inset-0 m-auto hidden"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="https://www.facebook.com/SHASHVAT.DENTALCARE" target="_blank" rel="noopener noreferrer" class="hover:text-teal-400 transition duration-300"><i class="fab fa-facebook-f text-xl"></i></a>
+                <a href="https://www.instagram.com/SHASHVAT.DENTALCARE" target="_blank" rel="noopener noreferrer" class="hover:text-teal-400 transition duration-300"><i class="fab fa-instagram text-xl"></i></a>
+            </div>
+            <p class="text-gray-400">&copy; 2024 Shashvat Child & Family Dental Care. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu functionality
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.add('open');
+        });
+
+        document.getElementById('close-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.remove('open');
+        });
+        
+        // AI Assistant Modal Functionality
+        const aiAssistantButton = document.getElementById('ai-assistant-button');
+        const modalOverlay = document.getElementById('ai-assistant-modal-overlay');
+        const closeModalButton = document.getElementById('close-modal-button');
+        const chatBox = document.getElementById('chat-box');
+        const dentalQuery = document.getElementById('dental-query');
+
+        aiAssistantButton.addEventListener('click', () => {
+            modalOverlay.style.display = 'flex';
+        });
+
+        closeModalButton.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+        });
+
+        // Close modal if user clicks outside of it
+        modalOverlay.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
+        });
+        
+        // Auto-resize textarea
+        dentalQuery.addEventListener('input', () => {
+            dentalQuery.style.height = 'auto';
+            dentalQuery.style.height = dentalQuery.scrollHeight + 'px';
+        });
+
+        // Gemini API integration for Dental Health Assistant
+        document.getElementById('ask-button').addEventListener('click', async function() {
+            const query = dentalQuery.value.trim();
+            const askButton = document.getElementById('ask-button');
+            const loader = document.getElementById('loader');
+
+            if (!query) {
+                return;
+            }
+
+            // Add user message to chat box
+            const userMessage = document.createElement('div');
+            userMessage.className = 'user-message text-sm mb-2 p-2 rounded-lg bg-teal-500 text-white';
+            userMessage.textContent = query;
+            chatBox.appendChild(userMessage);
+
+            // Scroll to bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
+            
+            // Clear textarea
+            dentalQuery.value = '';
+            dentalQuery.style.height = 'auto';
+
+            // Show loading state and add initial bot message
+            askButton.disabled = true;
+            loader.classList.remove('hidden');
+
+            const botMessage = document.createElement('div');
+            botMessage.className = 'bot-message text-sm mb-2 p-2 rounded-lg bg-gray-200 text-gray-800 italic';
+            botMessage.textContent = 'Assistant is typing...';
+            chatBox.appendChild(botMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                // System instruction for the LLM
+                const systemPrompt = "You are a friendly and knowledgeable dental health assistant. Provide a concise, helpful response to dental-related questions. Your advice should be general and for informational purposes only, and you must always include a disclaimer at the end stating, 'For specific medical advice, please consult a dental professional.'";
+                const userQuery = "Provide some general dental tips based on the following question: " + query;
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    tools: [{ "google_search": {} }],
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                const text = candidate?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response. Please try again.";
+                
+                // Update bot message with response
+                botMessage.textContent = text;
+                
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                botMessage.textContent = "An error occurred. Please try again later.";
+            } finally {
+                // Hide loading state
+                askButton.disabled = false;
+                loader.classList.add('hidden');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+        
+        // Reviews Carousel Functionality
+        const reviewsCarousel = document.getElementById('reviews-carousel');
+        const prevButton = document.getElementById('prev-review');
+        const nextButton = document.getElementById('next-review');
+
+        prevButton.addEventListener('click', () => {
+            reviewsCarousel.scrollBy({
+                left: -reviewsCarousel.offsetWidth,
+                behavior: 'smooth'
+            });
+        });
+
+        nextButton.addEventListener('click', () => {
+            reviewsCarousel.scrollBy({
+                left: reviewsCarousel.offsetWidth,
+                behavior: 'smooth'
+            });
+        });
+
+        // Intersection Observer for scroll animation
+        const sections = document.querySelectorAll('.fade-in-section');
+
+        const observerOptions = {
+            root: null, // Use the viewport as the root
+            rootMargin: '0px',
+            threshold: 0.2 // Trigger when 20% of the section is visible
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target); // Stop observing after it becomes visible
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
