@@ -12,7 +12,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+            background-color: teal;
         }
         .font-unkempt {
             font-family: 'Unkempt', cursive;
@@ -96,18 +96,6 @@
             transform: translateY(0);
         }
         
-        /* Animated gradient background for the home section */
-        @keyframes gradient-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .animated-gradient {
-            background: linear-gradient(-45deg, #14b8a6, #22d3ee, #06b6d4, #3b82f6);
-            background-size: 400% 400%;
-            animation: gradient-animation 15s ease infinite;
-        }
-
         /* Floating AI Assistant Button - Highlighted Style with Grey Theme */
         #ai-assistant-button {
             position: fixed;
@@ -270,7 +258,7 @@
     </div>
 
     <main>
-        <section id="home" class="relative animated-gradient text-white py-20 md:py-32 overflow-hidden">
+        <section id="home" class="relative text-white py-20 md:py-32 overflow-hidden">
             <div class="container mx-auto px-4 text-center relative z-10">
                 <h1 class="text-4xl md:text-6xl font-bold mb-4">Shashvat <span class="font-unkempt"><span style="color:#ff7f7f;">C</span><span style="color:#ffc485;">h</span><span style="color:#ffffb3;">i</span><span style="color:#ffb3e6;">l</span><span style="color:#cc99ff;">d</span></span> & Family Dental Care
                 </h1>
@@ -782,5 +770,6 @@
         </script>
     </body>
     </html>
+
 
 
